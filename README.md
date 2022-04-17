@@ -4,3 +4,4 @@ This project is based on kotlin and using
 -Coroutines 
 -Hilt
 -Retrofit
+-DataBinding
