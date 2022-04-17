@@ -19,6 +19,7 @@ import com.mortex.converter.ui.adapter.CurrencySelected
 import com.mortex.converter.ui.adapter.MyBalanceAdapter
 import com.mortex.converter.utils.CustomDialog
 import com.mortex.converter.utils.Functions.showDialog
+import com.mortex.converter.utils.Functions.showToast
 import com.mortex.converter.utils.Resource
 import dagger.hilt.android.AndroidEntryPoint
 import kotlin.math.roundToInt
@@ -106,16 +107,18 @@ class ConverterFragment : Fragment(), CurrencySelected {
 
         binding.btnSubmit.setOnClickListener {
 
-            var canConvert = false
+            //check if have enough balance to sell or not sell and buy items selected
+            var haveBalance = false
             for (i in myBalanceItems) {
-                if (sellCurrencyRate?.currency == i.currency && i.amount >= binding.sellInputValue.text.toString()
-                        .toDouble()
+                if (sellCurrencyRate?.currency == i.currency &&  binding.sellInputValue.text.toString().isNotEmpty() && i.amount >= binding.sellInputValue.text?.toString()
+                        ?.toDouble() ?: 1000.00 && buyCurrencyRate?.currency?.isNotEmpty() == true
                 ) {
-                    canConvert = true
+                    haveBalance = true
                 }
             }
-//            if (binding.sellInputValue.text!!.isNotBlank() && binding.receiveCurrencyValue.text.isNotEmpty()) {
-            if (canConvert) {
+
+
+            if (haveBalance ) {
                 counter += 1
                 var sellValue = 0.00
                 var receiveValue = 0.00
@@ -140,6 +143,8 @@ class ConverterFragment : Fragment(), CurrencySelected {
                 setBalanceAmount(sellValue, sellCurrencyRate!!.currency, false)
 
                 showConvertDialog(desc)
+            } else {
+                showToast("Your balance is not enough to convert!")
             }
 
         }
@@ -147,7 +152,7 @@ class ConverterFragment : Fragment(), CurrencySelected {
     }
 
     private fun showConvertDialog(msg: String) {
-        showDialog(requireContext(), msg)
+        showDialog(msg)
     }
 
 
