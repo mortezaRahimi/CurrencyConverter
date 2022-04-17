@@ -38,6 +38,7 @@ class ConverterFragment : Fragment(), CurrencySelected {
     private var buyCurrencyRate: CurrencyRate? = null
     private var firstTime = true
     private var counter = 0
+    private var veryFirsTimeApiCall = true
 
     lateinit var mainHandler: Handler
 
@@ -110,7 +111,8 @@ class ConverterFragment : Fragment(), CurrencySelected {
             //check if have enough balance to sell or not sell and buy items selected
             var haveBalance = false
             for (i in myBalanceItems) {
-                if (sellCurrencyRate?.currency == i.currency &&  binding.sellInputValue.text.toString().isNotEmpty() && i.amount >= binding.sellInputValue.text?.toString()
+                if (sellCurrencyRate?.currency == i.currency && binding.sellInputValue.text.toString()
+                        .isNotEmpty() && i.amount >= binding.sellInputValue.text?.toString()
                         ?.toDouble() ?: 1000.00 && buyCurrencyRate?.currency?.isNotEmpty() == true
                 ) {
                     haveBalance = true
@@ -118,12 +120,11 @@ class ConverterFragment : Fragment(), CurrencySelected {
             }
 
 
-            if (haveBalance ) {
+            if (haveBalance) {
                 counter += 1
-                var sellValue = 0.00
-                var receiveValue = 0.00
+                var receiveValue: Double
 
-                sellValue = binding.sellInputValue.text.toString().toDouble()
+                var sellValue: Double = binding.sellInputValue.text.toString().toDouble()
                 receiveValue = sellValue * buyCurrencyRate?.rate!!
                 receiveValue = (receiveValue * 10000.0).roundToInt() / 10000.0
                 binding.buyInputValue.setText(
@@ -143,12 +144,9 @@ class ConverterFragment : Fragment(), CurrencySelected {
                 setBalanceAmount(sellValue, sellCurrencyRate!!.currency, false)
 
                 showConvertDialog(desc)
-            } else {
-                showToast("Your balance is not enough to convert!")
             }
 
         }
-
     }
 
     private fun showConvertDialog(msg: String) {
@@ -156,19 +154,19 @@ class ConverterFragment : Fragment(), CurrencySelected {
     }
 
 
-    var veryFirsTimeApiCall = true
     private fun getRates() {
         viewModel.getRates().observe(viewLifecycleOwner, {
             binding.loading.visibility = View.GONE
             when (it.status) {
                 Resource.Status.ERROR -> {
+                    showToast(it.message.toString())
                 }
 
                 Resource.Status.SUCCESS -> {
                     Toast.makeText(requireContext(), "Rates updated", Toast.LENGTH_SHORT).show()
                     val ratesHashmap = it.data?.rates?.toList()
                     for (i in ratesHashmap!!) {
-                        var item = CurrencyRate(i.first, i.second)
+                        val item = CurrencyRate(i.first, i.second)
                         rates.add(item)
 
                         //sort with USD and EUR and GBP on top
@@ -190,6 +188,9 @@ class ConverterFragment : Fragment(), CurrencySelected {
 
                 Resource.Status.LOADING -> {
                     binding.loading.visibility = View.VISIBLE
+                }
+                Resource.Status.TOKEN_EXPIRED -> {
+                    showToast("TOKEN is Expired")
                 }
             }
         })
