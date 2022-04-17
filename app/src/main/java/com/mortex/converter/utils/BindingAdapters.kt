@@ -5,16 +5,11 @@ import android.view.View.VISIBLE
 import android.widget.FrameLayout
 import android.widget.TextView
 import androidx.databinding.BindingAdapter
+import com.mortex.converter.data.model.BalanceItem
 
 
-@BindingAdapter("unreadCount")
-fun TextView.checkUnread(count: Int) {
-    if (count > 0) {
-        text = count.toString()
-        (this.parent as FrameLayout).visibility = VISIBLE
-        visibility = VISIBLE
-    } else {
-        (this.parent as FrameLayout).visibility = GONE
-        visibility = GONE
-    }
+@BindingAdapter("setCurrencyAndAmount")
+fun TextView.setCurrencyAndAmount(item: BalanceItem) {
+    val value = item.currency + " " + item.amount.toString()
+    this.text = value
 }

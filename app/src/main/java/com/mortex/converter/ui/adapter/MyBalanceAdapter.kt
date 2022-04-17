@@ -45,8 +45,7 @@ class MyBalanceItemViewHolder(
 
     fun bind(item: BalanceItem) {
         this.balanceItem = item
-        val value = item.currency + " " + balanceItem.amount.toString()
-        itemBinding.balanceValue.text = value
+        itemBinding.balanceItem = item
     }
 
 
